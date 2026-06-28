@@ -1,0 +1,58 @@
+// 4-bit Ripple Carry Adder
+module rca4(input [3:0] A, input [3:0] B, input Cin,
+            output [3:0] Sum, output Cout);
+assign {Cout,Sum} = A + B + Cin;
+endmodule
+// 4-bit Incrementer
+module inc4(input [3:0] A, input Cin,
+            output [3:0] Sum, output Cout);
+assign {Cout,Sum} = A + Cin;
+endmodule
+// 32-bit Carry Increment Adder
+module cia32(
+input [31:0] A,
+input [31:0] B,
+output [31:0] SUM
+);
+assign SUM = A + B;
+endmodule
+// 32-bit ALU with Clock Gating
+module alu32_clock_gated(
+input clk,
+input enable,
+input [31:0] A,
+input [31:0] B,
+input [4:0] opcode,
+output reg [31:0] RESULT
+);
+wire gated_clk;
+wire [31:0] add_out;
+assign gated_clk = clk & enable;
+cia32 ADDER(A,B,add_out);
+always @(posedge gated_clk)
+begin
+case(opcode)
+5'd0  : RESULT <= add_out;
+5'd1  : RESULT <= A - B;
+5'd2  : RESULT <= A + 1;
+5'd3  : RESULT <= A - 1;
+5'd4  : RESULT <= add_out + 1;
+5'd5  : RESULT <= A - B - 1;
+5'd6  : RESULT <= A & B;
+5'd7  : RESULT <= A | B;
+5'd8  : RESULT <= A ^ B;
+5'd9  : RESULT <= ~A;
+5'd10 : RESULT <= ~(A & B);
+5'd11 : RESULT <= ~(A | B);
+5'd12 : RESULT <= A << 1;
+5'd13 : RESULT <= A >> 1;
+5'd14 : RESULT <= A >>> 1;
+5'd15 : RESULT <= {A[30:0],A[31]};
+5'd16 : RESULT <= (A==B);
+5'd17 : RESULT <= (A>B);
+5'd18 : RESULT <= (A<B);
+5'd19 : RESULT <= (A==0);
+default : RESULT <= 0;
+endcase
+end
+endmodule
